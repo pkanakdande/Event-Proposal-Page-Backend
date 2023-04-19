@@ -1,31 +1,34 @@
 const express=require('express');
 const bcrypt=require("bcrypt");
-
+const jwt=require("jsonwebtoken")
 const registerModel=require("../Schema/registerschema.js");
 const registerUserModel = require('../Schema/userSchema/registeruser.js');
 const router=express.Router();
 router.use(express.json());
 router.use(express.urlencoded({extended:true}))
+
 router.get("/",(req,res)=>{
     res.send("Hello World")
 })
 router.post("/register",async (req,res)=>{
     try
+  
     {
         // console.log(req.body);
-        let {name,email,phone,password,confirm_password}=req.body;
-        if(password===confirm_password)
+        let {name,email,contact,password,conformpassword}=req.body;
+        if(password===conformpassword)
         {
-            let password=await bcrypt.hash(password,10)
-            console.log(password);
+            let securepass=await bcrypt.hash(password,10)
+            console.log(securepass);
             let registerDoc=await new registerModel({
                name:name,
                email:email,
-               phone:phone,
-               password:password
+               contact:contact,
+               password:securepass,
+               conformpassword:conformpassword
             })
-            await registerDoc.save();
-            res.send("successful")
+           const data= await registerDoc.save();
+            res.send(data)
         }
         else
         {
@@ -37,19 +40,28 @@ router.post("/register",async (req,res)=>{
         res.send(error)
     }
 })
+
+
 router.post("/login",async (req,res)=>{
     try
     {
+        // console.log(req.body)
         let {email,password}=req.body;
         let data=await registerModel.findOne({email:email})
+        console.log(data)
         if(data)
         {
             let match=await bcrypt.compare(password,data.password)
             if(match)
             {
-                const token=await jwt.sign({email:req.body.email},"secret_key")
+                const token=await jwt.sign({email:data.email},"secret_key")
                 console.log(token)
-                res.send("login successful")
+
+               res.cookie("jwttoken",token,{
+                expires:new Date(Date.now() + 25892000000) //1yr
+                
+               })
+               res.send("login")
 
             }
             else
@@ -70,23 +82,26 @@ router.post("/login",async (req,res)=>{
 
 
 
-router.post("user/register",async (req,res)=>{
+
+router.post("/user/register",async (req,res)=>{
     try
+  
     {
         // console.log(req.body);
-        let {name,email,phone,password,confirm_password}=req.body;
-        if(password===confirm_password)
+        let {name,email,contact,password,conformpassword}=req.body;
+        if(password===conformpassword)
         {
-            let password=await bcrypt.hash(password,10)
-            console.log(password);
-            let createUser=await new registerUserModel({
+            let securepass=await bcrypt.hash(password,10)
+            console.log(securepass);
+            let registerDoc=await new registerUserModel({
                name:name,
                email:email,
-               phone:phone,
-               password:password
+               contact:contact,
+               password:securepass,
+               conformpassword:conformpassword
             })
-            await createUser.save();
-            res.send("successful")
+           const data= await registerDoc.save();
+            res.send(data)
         }
         else
         {
@@ -103,9 +118,39 @@ router.post("user/register",async (req,res)=>{
 
 
 
-
-
-
+router.post("/user/login",async (req,res)=>{
+    try
+    {
+        let {email,password}=req.body;
+        let data=await registerUserModel.findOne({email:email})
+        if(data)
+        {
+            let match=await bcrypt.compare(password,data.password)
+            if(match)
+            {
+                const token=await jwt.sign({email:data.email},"secret_key")
+                console.log(token)
+                
+               res.cookie("jwt",token,{
+                expires:new Date(Date.now() + 25892000000)
+               })
+                   res.send("login")
+            }
+            else
+            {
+                res.send("worong password")
+            }
+        }
+        else
+        {
+            res.send("not registered")
+        }
+    }
+    catch (error)
+    {
+        res.send(error)
+    }
+})
 
 
 module.exports=router

@@ -7,7 +7,7 @@ const createlogin=new mongoose.Schema({
         type:String,
         // unique:[true,"emailid already present"],
         validator(value){
-            if(!validator.isEmail(value))
+            if(!validator.isEmail(value))  
             {
                 throw new Error("error")
             }

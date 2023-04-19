@@ -6,8 +6,6 @@ const router=require("./router/route.js")
 app.use(router)
 
 
-
-
 app.get("/",(req,res)=>{
    res.send("Home").status(200)
 })
