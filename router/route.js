@@ -4,8 +4,11 @@ const jwt=require("jsonwebtoken")
 const registerModel=require("../Schema/registerschema.js");
 const registerUserModel = require('../Schema/userSchema/registeruser.js');
 const router=express.Router();
+const cors=require("cors")
+router.use(cors())
 router.use(express.json());
 router.use(express.urlencoded({extended:true}))
+
 
 router.get("/",(req,res)=>{
     res.send("Hello World")
@@ -84,10 +87,11 @@ router.post("/login",async (req,res)=>{
 
 
 router.post("/user/register",async (req,res)=>{
-    try
+    console.log(req.body)
+   try
   
     {
-        // console.log(req.body);
+        console.log(req.body);
         let {name,email,contact,password,conformpassword}=req.body;
         if(password===conformpassword)
         {
@@ -101,7 +105,9 @@ router.post("/user/register",async (req,res)=>{
                conformpassword:conformpassword
             })
            const data= await registerDoc.save();
-            res.send(data)
+             res.json({
+                message:"hello"
+             })
         }
         else
         {
@@ -122,7 +128,7 @@ router.post("/user/login",async (req,res)=>{
     try
     {
         let {email,password}=req.body;
-        let data=await registerUserModel.findOne({email:email})
+        let data=await registerUserModel.find({email:email})
         if(data)
         {
             let match=await bcrypt.compare(password,data.password)
