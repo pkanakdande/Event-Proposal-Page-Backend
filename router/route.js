@@ -4,35 +4,46 @@ const jwt=require("jsonwebtoken")
 const registerModel=require("../Schema/registerschema.js");
 const registerUserModel = require('../Schema/userSchema/registeruser.js');
 const router=express.Router();
+const cors=require("cors")
+router.use(cors())
 router.use(express.json());
 router.use(express.urlencoded({extended:true}))
+
 
 router.get("/",(req,res)=>{
     res.send("Hello World")
 })
 router.post("/register",async (req,res)=>{
+
+    let {name,email,contact,password,conformpassword}=req.body;
+
+    if(!name || !email || !contact || !password || !conformpassword){
+        return res.status(422).json({error:"please fill the require field"})
+    }
+    // console.log(req.body);
+  
+
     try
   
     {
-        // console.log(req.body);
-        let {name,email,contact,password,conformpassword}=req.body;
+      console.log(req.body)
         if(password===conformpassword)
         {
             let securepass=await bcrypt.hash(password,10)
             console.log(securepass);
-            let registerDoc=await new registerModel({
+            let registerdoc=await new registerModel({
                name:name,
                email:email,
                contact:contact,
                password:securepass,
                conformpassword:conformpassword
             })
-           const data= await registerDoc.save();
-            res.send(data)
+           const data= await registerdoc.save();
+            // res.send(data)
         }
         else
         {
-            res.send("password is not matching")
+            res.json({message:"password does not match"})
         }
     }
     catch (error)
@@ -61,17 +72,17 @@ router.post("/login",async (req,res)=>{
                 expires:new Date(Date.now() + 25892000000) //1yr
                 
                })
-               res.send("login")
+                res.json({message:"login successful"})
 
             }
             else
             {
-                res.send("worong password")
+                res.json({message:"worong password"})
             }
         }
         else
         {
-            res.send("not registered")
+            res.json({message:"not registered"})
         }
     }
     catch (error)
@@ -84,11 +95,17 @@ router.post("/login",async (req,res)=>{
 
 
 router.post("/user/register",async (req,res)=>{
-    try
+    console.log(req.body)
+    if(!this.name || !email || !contact || !password || !conformpassword){
+        return res.status(422).json({error:"please fill the require field"})
+    }
+   
+    let {name,email,contact,password,conformpassword}=req.body;
+
+   try
   
     {
-        // console.log(req.body);
-        let {name,email,contact,password,conformpassword}=req.body;
+       
         if(password===conformpassword)
         {
             let securepass=await bcrypt.hash(password,10)
@@ -101,11 +118,13 @@ router.post("/user/register",async (req,res)=>{
                conformpassword:conformpassword
             })
            const data= await registerDoc.save();
-            res.send(data)
+             res.json({
+                message:"hello"
+             })
         }
         else
         {
-            res.send("password is not matching")
+            res.json({message:"password does not match"})
         }
     }
     catch (error)
@@ -134,7 +153,7 @@ router.post("/user/login",async (req,res)=>{
                res.cookie("jwt",token,{
                 expires:new Date(Date.now() + 25892000000)
                })
-                   res.send("login")
+                   res.json({message:"login"})
             }
             else
             {
@@ -142,8 +161,8 @@ router.post("/user/login",async (req,res)=>{
             }
         }
         else
-        {
-            res.send("not registered")
+        {  
+            res.json({message:"not registered"})
         }
     }
     catch (error)

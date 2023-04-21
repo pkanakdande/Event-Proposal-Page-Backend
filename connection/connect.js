@@ -1,5 +1,5 @@
 const mongoose=require("mongoose")
-mongoose.connect("mongodb://localhost:27017/Vender-api")
+mongoose.connect("mongodb+srv://pkanakdande:10xacademy@cluster1.rnu1bgi.mongodb.net/?retryWrites=true&w=majority")
 .then(res=>{
     console.log("connected")
 })

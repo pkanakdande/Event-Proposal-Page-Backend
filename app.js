@@ -1,9 +1,13 @@
 const express=require("express")
 const app=express()
+app.use(express.urlencoded({extended:false}))
 app.use(express.json())
 require("./connection/connect.js")
 const router=require("./router/route.js")
 app.use(router)
+const cors=require("cors")
+app.use(cors())
+
 
 
 app.get("/",(req,res)=>{
