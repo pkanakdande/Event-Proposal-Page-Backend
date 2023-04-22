@@ -66,7 +66,7 @@ router.post("/register",async (req,res)=>{
         // console.log(req.body);
         const oldVender =await registerModel.findOne({email})
         if (oldVender){
-           return res.send({  status : "error", error : "User Exist"})
+           return res.send({  status : "error", error : "Vendor Exist"})
         }
         
             let securepass=await bcrypt.hash(password,10)
@@ -95,7 +95,7 @@ router.post("/login",async (req,res)=>{
     try {
     const vendor =await registerModel.findOne({email});
     if (!vendor){
-        return res.json({ status  : "error",  error : "User not found"})
+        return res.json({ status  : "error",  error : "Vendor not found"})
     }
     if ( await bcrypt.compare(password,vendor.password) )
     {
@@ -154,33 +154,31 @@ router.post("/login",async (req,res)=>{
 
 
 router.post("/user/register",async (req,res)=>{
+    let {name,email,contact,password}=req.body;
     try
   
     {
         // console.log(req.body);
-        let {name,email,contact,password,conformpassword}=req.body;
-        if(password===conformpassword)
-        {
+        const oldUser =await registerUserModel.findOne({email})
+        if (oldUser){
+           return res.send({  status : "error", error : "User Exist"})
+        }
+        
             let securepass=await bcrypt.hash(password,10)
             console.log(securepass);
-            let registerDoc=await new registerUserModel({
+           await registerUserModel.create({
                name:name,
                email:email,
                contact:contact,
                password:securepass,
-               conformpassword:conformpassword
-            })
-           const data= await registerDoc.save();
-            res.send(data)
-        }
-        else
-        {
-            res.send("password is not matching")
-        }
+               
+            });
+           
+            res.send({ status : "ok"});
     }
     catch (error)
     {
-        res.send(error)
+        res.send({ status : "error"});
     }
 })
 
@@ -189,36 +187,27 @@ router.post("/user/register",async (req,res)=>{
 
 
 router.post("/user/login",async (req,res)=>{
-    try
-    {
-        let {email,password}=req.body;
-        let data=await registerUserModel.findOne({email:email})
-        if(data)
-        {
-            let match=await bcrypt.compare(password,data.password)
-            if(match)
-            {
-                const token=await jwt.sign({email:data.email},"secret_key")
-                console.log(token)
-                
-               res.cookie("jwt",token,{
-                expires:new Date(Date.now() + 25892000000)
-               })
-                   res.send("login")
-            }
-            else
-            {
-                res.send("worong password")
-            }
-        }
-        else
-        {
-            res.send("not registered")
-        }
+    const {email,password}=req.body;
+
+    try {
+    const user =await registerUserModel.findOne({email});
+    if (!user){
+        return res.json({ status  : "error",  error : "User not found"})
     }
-    catch (error)
+    if ( await bcrypt.compare(password,user.password) )
     {
-        res.send(error)
+        const token= await jwt.sign({_id : user._id, email:user.email,},"secret_key")
+        if (res.status(201)){
+            return res.json({status :"ok" , data : token});
+        }else {
+            return res.json({ error : "error"});
+        }
+  
+    }
+    res.json({status  : "error" , error : "Invalid Password"})
+
+    } catch (err){
+      res.send(err)
     }
 })
 
