@@ -27,6 +27,22 @@ router.post("/createproposal",async (req,res) => {
 }
  });
 
+ 
+router.delete("/deleteproposal",async (req,res) => {
+    let {Id} = req.body;
+    try {
+        
+   
+           await proposalModel.findByIdAndDelete(Id);
+           
+           res.send({ status : "ok"});
+          
+   } catch(error)
+   {
+       res.send({ status : "error"});
+   }
+    });
+
 
  router.get("/proposals",async (req,res) => {
    
