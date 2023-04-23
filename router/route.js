@@ -19,19 +19,17 @@ router.post("/createproposal",async (req,res) => {
             eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,images
         });
         const data = await proposalData.save();
-        res.send(data) 
+        res.send({ status : "ok"});
        
 } catch(error)
 {
-    res.send(error)
+    res.send({ status : "error"});
 }
  });
 
 
  router.get("/proposals",async (req,res) => {
    
-
-    
    try{ 
     const proposals = await proposalModel.find();
     res.send(proposals);
