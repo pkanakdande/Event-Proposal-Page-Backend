@@ -54,7 +54,19 @@ router.delete("/deleteproposal",async (req,res) => {
 }
  });
 
- router.post("/vendordata" , async (req,res) => {
+ router.get("/vendordataandproposal",async (req,res) => {
+   
+    try{ 
+     const vendordata = await registerModel.find();
+     const proposaldata= await proposalModel.find();
+     const payload=({vendordata:vendordata,proposaldata:proposaldata})
+     res.send(payload);
+    }catch (err){
+      console.log(err)
+ }
+  });
+
+ router.post("/vendordataandproposal" , async (req,res) => {
     const {token} = req.body;
     try{
         const vendor = jwt.verify(token,"secret_key")
