@@ -3,7 +3,18 @@
 const mongoose=require("mongoose");
 
 const proposalSchema = new mongoose.Schema({
-
+   
+  
+    vendorName:{
+        type:String,
+    },
+    vendorId:{
+        type:String
+    },
+    vendorEmail:{
+        type:String,
+        
+    },
     eventName:{
         type:String,
     },
