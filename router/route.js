@@ -1,22 +1,58 @@
+const mongoose=require("mongoose")
 const express=require('express');
 const bcrypt=require("bcrypt");
 const jwt=require("jsonwebtoken")
 const registerModel=require("../Schema/registerschema.js"); 
 const registerUserModel = require('../Schema/userSchema/registeruser.js');
-const {requireLogin} = require('../middleware/auth.js')
+const {requireLogin} = require('../middleware/auth.js');
 
 const proposalModel = require("../Schema/proposalSchema.js")
 const router=express.Router();
 router.use(express.json());
 router.use(express.urlencoded({extended:true}))
+require("dotenv").config();
+const multer=require("multer")
+const {GridFsStorage}=require("multer-gridfs-storage")
+const {GridFSBucket,MongoClient}=require("mongodb")
+
+const ImageDetailsSchema = new mongoose.Schema(
+    {
+        image : String
+    },
+    {
+        collection : "ImageDetails" ,
+    }
+);
+mongoose.model("ImageDetails",ImageDetailsSchema);
+
+const Images = mongoose.model("ImageDetails");
+
+router.post("/uploadimage", async (req,res) => {
+    const {base64} = req.body;
+    try{
+        Images.create({image:base64})
+        res.send({ status : "ok"});
+
+    } catch (error){
+        res.send({ status : "error"}); 
+    }
+})
 
 
 router.post("/createproposal",async (req,res) => {
+    let {eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,token} = req.body;
+   
  try {
-     let {eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,images} = req.body;
-
+     
+      
+    const vendor = jwt.verify(token,"secret_key")
+    const vendorEmail = vendor.email;
+    const vendorId = vendor._id;
+    const vendorName = vendor.name;
+    console.log(vendorEmail)
+    
         let proposalData =  await new proposalModel({
-            eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,images
+            eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,vendorEmail:vendorEmail,vendorId:vendorId,vendorName:vendorName
         });
         const data = await proposalData.save();
         res.send({ status : "ok"});
@@ -29,18 +65,21 @@ router.post("/createproposal",async (req,res) => {
 
  
 router.delete("/deleteproposal",async (req,res) => {
-    let {Id} = req.body;
+    let {id} = req.body; 
     try {
         
-   
-           await proposalModel.findByIdAndDelete(Id);
+            
+           await proposalModel.findByIdAndDelete(id);
+       const payload =  await proposalModel.find();
            
-           res.send({ status : "ok"});
+        //    res.send({ status : "ok" });
+           res.send(payload)
+
           
    } catch(error)
    {
        res.send({ status : "error"});
-   }
+   } 
     });
 
 
@@ -113,7 +152,7 @@ router.post("/login",async (req,res)=>{
     }
     if ( await bcrypt.compare(password,vendor.password) )
     {
-        const token= await jwt.sign({_id : vendor._id, email:vendor.email,},"secret_key")
+        const token= await jwt.sign({_id : vendor._id, email:vendor.email, name : vendor.name},"secret_key")
         if (res.status(201)){
             return res.json({status :"ok" , data : token});
         }else {
@@ -127,45 +166,6 @@ router.post("/login",async (req,res)=>{
       res.send(err)
     }
 });
-//     try
-//     {
-        
-        
-//         let data=await registerModel.findOne({email:email})
-//         console.log(data)
-//         if(data)
-//         {
-//             let match=await bcrypt.compare(password,data.password)
-//             if(match)
-//             {
-//                 const token=await jwt.sign({_id : data._id, email:data.email,},"secret_key")
-                
-
-//             //    res.cookie("jwttoken",token,{
-//             //     expires:new Date(Date.now() + 25892000000) 
-                
-//             //    })
-//                res.json({token});
-
-//             }
-//             else
-//             {
-//                 res.json({"message": "worong password"})
-//             }
-//         }
-//         else
-//         {
-//             res.json( {"message" : "not registered"})
-//         }
-//     }
-//     catch (error)
-//     {
-//         res.send(error)
-//     }
-// })
-
-
-
 
 router.post("/user/register",async (req,res)=>{
     let {name,email,contact,password}=req.body;
