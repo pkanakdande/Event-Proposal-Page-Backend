@@ -57,7 +57,7 @@ const upload = multer({ storage: storage })
 // })
       
 
-router.post("/createproposal",async (req,res) => {
+router.post("/createproposal",upload.single("image"),async (req,res) => {
     let {eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,token,image} = req.body;
    
  try {
