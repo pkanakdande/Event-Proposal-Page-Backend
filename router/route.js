@@ -1,3 +1,4 @@
+const cookieparser=require("cookie-parser");
 const mongoose=require("mongoose")
 const express=require('express');
 const bcrypt=require("bcrypt");
@@ -9,6 +10,7 @@ const fs = require('fs');
 const proposalModel = require("../Schema/proposalSchema.js")
 const router=express.Router();
 const cors=require("cors")
+router.use(cookieparser());
 router.use(cors())
 router.use(express.json());
 router.use(express.urlencoded({extended:true}))
@@ -184,6 +186,7 @@ router.post("/login",async (req,res)=>{
     {
         const token= await jwt.sign({_id : vendor._id, email:vendor.email, name : vendor.name},"secret_key")
         if (res.status(201)){
+            res.cookie("vendorName",vendor.name)
             return res.json({status :"ok" , data : token});
         }else {
             return res.json({ error : "error"});
@@ -255,5 +258,13 @@ router.post("/user/login",async (req,res)=>{
     }
 })
 
+router.get("/getproposal/:id",async (req,res)=>{
+    // console.log(req.params.id)
+    
+    const data=await proposalModel.findById(req.params.id)
+    console.log(data)
+    return res.json({proposal:data}) 
+
+})
 
 module.exports=router
