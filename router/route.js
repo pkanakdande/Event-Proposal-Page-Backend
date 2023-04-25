@@ -10,7 +10,7 @@ const proposalModel = require("../Schema/proposalSchema.js")
 const router=express.Router();
 router.use(express.json());
 router.use(express.urlencoded({extended:true}))
-require("dotenv").config();
+// require("dotenv").config();
 const multer=require("multer")
 const {GridFsStorage}=require("multer-gridfs-storage")
 const {GridFSBucket,MongoClient}=require("mongodb")
@@ -40,23 +40,22 @@ router.post("/uploadimage", async (req,res) => {
 
 
 router.post("/createproposal",async (req,res) => {
-    let {eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,token} = req.body;
-   
+    let {eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,token,image} = req.body;
  try {
-     
-      
     const vendor = jwt.verify(token,"secret_key")
     const vendorEmail = vendor.email;
     const vendorId = vendor._id;
     const vendorName = vendor.name;
     console.log(vendorEmail)
-    
         let proposalData =  await new proposalModel({
-            eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,vendorEmail:vendorEmail,vendorId:vendorId,vendorName:vendorName
+            eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,vendorEmail:vendorEmail,vendorId:vendorId,vendorName:vendorName,image
+            // : {
+            //     data: req.file.buffer,
+            //     contentType: req.file.mimetype,
+            // }
         });
         const data = await proposalData.save();
         res.send({ status : "ok"});
-       
 } catch(error)
 {
     res.send({ status : "error"});
@@ -93,17 +92,17 @@ router.delete("/deleteproposal",async (req,res) => {
 }
  });
 
- router.get("/vendordataandproposal",async (req,res) => {
+//  router.get("/vendordataandproposal",async (req,res) => {
    
-    try{ 
-     const vendordata = await registerModel.find();
-     const proposaldata= await proposalModel.find();
-     const payload=({vendordata:vendordata,proposaldata:proposaldata})
-     res.send(payload);
-    }catch (err){
-      console.log(err)
- }
-  });
+//     try{ 
+//      const vendordata = await registerModel.find();
+//      const proposaldata= await proposalModel.find();
+//      const payload=({vendordata:vendordata,proposaldata:proposaldata})
+//      res.send(payload);
+//     }catch (err){
+//       console.log(err)
+//  }
+//   });
 
  router.post("/vendordataandproposal" , async (req,res) => {
     const {token} = req.body;
