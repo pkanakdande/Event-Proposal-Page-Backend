@@ -140,6 +140,19 @@ router.delete("/deleteproposal",async (req,res) => {
         res.send({ status : "error"});
     }
  })
+ 
+ router.post("/selectproposal" , async (req,res) => {
+    const {id} = req.body;
+    try{
+           const data = await proposalModel.findById(id)
+         
+            res.send({status :"ok", data :data });
+        }
+        catch(error) {
+            res.send({status :"error", data :error })
+        }
+    });
+
 
  
 router.post("/register",async (req,res)=>{
