@@ -32,7 +32,7 @@ const proposalSchema = new mongoose.Schema({
         type:Number
     },
     fromDate:{
-        type:Date
+        type:Date,
     },
     toDate:{
         type:Date,
@@ -47,8 +47,10 @@ const proposalSchema = new mongoose.Schema({
     events: {
         type: String
     },
-    images:{
+    image: {
         type: String
+        // data:Buffer,
+        // contentType: String
     }
 
 
