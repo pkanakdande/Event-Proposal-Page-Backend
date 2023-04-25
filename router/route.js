@@ -186,7 +186,7 @@ router.post("/login",async (req,res)=>{
     {
         const token= await jwt.sign({_id : vendor._id, email:vendor.email, name : vendor.name},"secret_key")
         if (res.status(201)){
-            res.cookie("vendorName",vendor.name)
+            res.cookie("Name",vendor.name)
             return res.json({status :"ok" , data : token});
         }else {
             return res.json({ error : "error"});
@@ -245,6 +245,7 @@ router.post("/user/login",async (req,res)=>{
     {
         const token= await jwt.sign({_id : user._id, email:user.email,},"secret_key")
         if (res.status(201)){
+            res.cookie("Name",user.name)
             return res.json({status :"ok" , data : token});
         }else {
             return res.json({ error : "error"});
