@@ -5,7 +5,7 @@ const jwt=require("jsonwebtoken")
 const registerModel=require("../Schema/registerschema.js"); 
 const registerUserModel = require('../Schema/userSchema/registeruser.js');
 const {requireLogin} = require('../middleware/auth.js');
-
+const fs = require('fs');
 const proposalModel = require("../Schema/proposalSchema.js")
 const router=express.Router();
 router.use(express.json());
@@ -13,34 +13,50 @@ router.use(express.urlencoded({extended:true}))
 require("dotenv").config();
 const multer=require("multer")
 const {GridFsStorage}=require("multer-gridfs-storage")
-const {GridFSBucket,MongoClient}=require("mongodb")
-
-const ImageDetailsSchema = new mongoose.Schema(
-    {
-        image : String
-    },
-    {
-        collection : "ImageDetails" ,
-    }
-);
-mongoose.model("ImageDetails",ImageDetailsSchema);
-
-const Images = mongoose.model("ImageDetails");
-
-router.post("/uploadimage", async (req,res) => {
-    const {base64} = req.body;
-    try{
-        Images.create({image:base64})
-        res.send({ status : "ok"});
-
-    } catch (error){
-        res.send({ status : "error"}); 
-    }
-})
+const {GridFSBucket,MongoClient}=require("mongodb");
+mongoose.set('strictQuery', false);
 
 
-router.post("/createproposal",async (req,res) => {
-    let {eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,token} = req.body;
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage })
+
+
+
+// const ImageModel  = require('../Schema/imageSchema.js');
+
+// //storage 
+// const Storage  = multer.diskStorage({
+//     destination : "uploads",
+//     filename : (req,file,cb) => {
+//         cb(null,Date.now + file.originalname);
+//     },
+// })
+// const upload = multer({
+//     storage : Storage
+// }).single('testImage')
+
+// router.post('/upload',(req,res) => {
+//     upload(req,res,(err) => {
+//         if (err){
+//             console.log(err)
+//         }
+//         else{
+//             const newImage = new ImageModel({
+//                 name : req.body.name,
+//                 image:{
+//                     data:req.file.filename,
+//                     contentType : 'image/png'
+//                 }
+//             })
+//             newImage.save()
+//             .then(() => res.send('successfully uploaded')).catch( err=> console.log(err));
+//         }
+//     })
+// })
+      
+
+router.post("/createproposal",  upload.single("image"),async (req,res) => {
+    let {eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,token,image} = req.body;
    
  try {
      
@@ -52,7 +68,11 @@ router.post("/createproposal",async (req,res) => {
     console.log(vendorEmail)
     
         let proposalData =  await new proposalModel({
-            eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,vendorEmail:vendorEmail,vendorId:vendorId,vendorName:vendorName
+            eventName, placeOfEvent,proposalType,eventType, budget,fromDate, toDate,foodPreference,description ,events,vendorEmail:vendorEmail,vendorId:vendorId,vendorName:vendorName,image
+            // : {
+            //     data: req.file.buffer,
+            //     contentType: req.file.mimetype,
+            // }
         });
         const data = await proposalData.save();
         res.send({ status : "ok"});
