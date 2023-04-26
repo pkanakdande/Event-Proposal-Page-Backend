@@ -16,8 +16,8 @@ router.use(express.json());
 router.use(express.urlencoded({extended:true}))
 // require("dotenv").config();
 const multer=require("multer")
-const {GridFsStorage}=require("multer-gridfs-storage")
-const {GridFSBucket,MongoClient}=require("mongodb");
+// const {GridFsStorage}=require("multer-gridfs-storage")
+// const {GridFSBucket,MongoClient}=require("mongodb");
 mongoose.set('strictQuery', false);
 const selectedModel = require('../Schema/userSchema/selectedSchema.js')
 
