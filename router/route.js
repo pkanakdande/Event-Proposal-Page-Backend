@@ -19,6 +19,7 @@ const multer=require("multer")
 const {GridFsStorage}=require("multer-gridfs-storage")
 const {GridFSBucket,MongoClient}=require("mongodb");
 mongoose.set('strictQuery', false);
+const selectedModel = require('../Schema/userSchema/selectedSchema.js')
 
 
 const storage = multer.memoryStorage();
@@ -145,13 +146,27 @@ router.delete("/deleteproposal",async (req,res) => {
     const {id} = req.body;
     try{
            const data = await proposalModel.findById(id)
-         
-            res.send({status :"ok", data :data });
+              
+           let selectedData =  await new selectedModel({
+            eventName : data.eventName, placeOfEvent : data.placeOfEvent,proposalType : data.proposalType,eventType : data.eventType, budget : data.budget,fromDate : data.fromDate, toDate : data.toDate,foodPreference : data.foodPreference,description : data.description ,events : data.events,vendorEmail:data.vendorEmail,vendorId: data.vendorId,vendorName: data.vendorName,image : data.image
+           
+        });
+       const data1  = await selectedData.save();
+            
+            res.send({status :"ok", data :data1 });
         }
         catch(error) {
             res.send({status :"error", data :error })
         }
     });
+
+    router.get("/getselectedproposals/:id",async (req,res) => {
+        const data=await selectedModel.findById(req.params.id)
+        console.log(data)
+        return res.json({selectedproposal:data}) 
+      });
+
+
 
 
  
