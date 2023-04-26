@@ -202,9 +202,7 @@ router.post("/register",async (req,res)=>{
 
 
 router.post("/login",async (req,res)=>{
-
     const {email,password}=req.body;
-
     try {
     const vendor =await registerModel.findOne({email});
     if (!vendor){
@@ -215,14 +213,12 @@ router.post("/login",async (req,res)=>{
         const token= await jwt.sign({_id : vendor._id, email:vendor.email, name : vendor.name},"secret_key")
         if (res.status(201)){
             res.cookie("Name",vendor.name)
-            return res.json({status :"ok" , data : token});
+            return res.json({status :"ok" , data : token ,vendorName:vendor.name});
         }else {
             return res.json({ error : "error"});
         }
-  
     }
     res.json({status  : "error" , error : "Invalid Password"})
-
     } catch (err){
       res.send(err)
     }
@@ -263,7 +259,6 @@ router.post("/user/register",async (req,res)=>{
 
 router.post("/user/login",async (req,res)=>{
     const {email,password}=req.body;
-
     try {
     const user =await registerUserModel.findOne({email});
     if (!user){
@@ -271,17 +266,15 @@ router.post("/user/login",async (req,res)=>{
     }
     if ( await bcrypt.compare(password,user.password) )
     {
-        const token= await jwt.sign({_id : user._id, email:user.email,},"secret_key")
+        const token= await jwt.sign({_id : user._id, email:user.email, name: user.name},"secret_key")
         if (res.status(201)){
             res.cookie("Name",user.name)
-            return res.json({status :"ok" , data : token});
+            return res.json({status :"ok" , data : token, userName : user.name});
         }else {
             return res.json({ error : "error"});
         }
-  
     }
     res.json({status  : "error" , error : "Invalid Password"})
-
     } catch (err){
       res.send(err)
     }
